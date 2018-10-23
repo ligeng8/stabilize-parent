@@ -10,20 +10,19 @@ import org.apache.zookeeper.ZooDefs.Ids;
 import org.apache.zookeeper.ZooKeeper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import com.stabilize.config.RpcConfig;
 
 
 @ConfigurationProperties(prefix="spring.stabilize",ignoreUnknownFields=true)
 @Configuration
 public class ZookeeperConfig {
-
-	private   int   sessionTimeout = 5000;
-	
-	private String address;
-	
-	private String proto;
+    @Autowired
+	private RpcConfig rpcConfig;
 	
 	private static Logger logger =  LoggerFactory.getLogger(ZookeeperConfig.class);
 	private CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -31,7 +30,7 @@ public class ZookeeperConfig {
 	@Bean
 	public ZooKeeper zookeeper() {
 		try {
-			ZooKeeper zooKeeper = new ZooKeeper(address, sessionTimeout, new Watcher() {
+			ZooKeeper zooKeeper = new ZooKeeper(rpcConfig.getAddress(), rpcConfig.getSessionTimeout(), new Watcher() {
 
 				@Override
 				public void process(WatchedEvent event) {
@@ -45,7 +44,7 @@ public class ZookeeperConfig {
 			
 			countDownLatch.await();
 			logger.info("zookeeper Connection success");
-			zooKeeper.create("/"+proto , "".getBytes(), Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+			zooKeeper.create("/"+rpcConfig.getProto() , "".getBytes(), Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 			return zooKeeper;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
