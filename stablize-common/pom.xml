@@ -38,8 +38,6 @@
 			<artifactId>
 					spring-boot-configuration-processor
 				</artifactId>
-			<optional>true</optional>
-			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 </project>
